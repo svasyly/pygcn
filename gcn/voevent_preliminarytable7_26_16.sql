@@ -1,5 +1,5 @@
 CREATE TABLE `voevent_lvc` (
-  `id` bigint(20) unsigned NOT NULL AUTO INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ivorn` text NOT NULL,
   `role` varchar(45) NOT NULL,
   `version` text NOT NULL,
