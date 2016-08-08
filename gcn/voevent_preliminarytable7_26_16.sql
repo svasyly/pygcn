@@ -1,5 +1,5 @@
 CREATE TABLE `voevent_lvc` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `voevent_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `ivorn` text NOT NULL,
   `role` varchar(45) NOT NULL,
   `version` text NOT NULL,
@@ -54,5 +54,5 @@ CREATE TABLE `voevent_lvc` (
   `concept` text,
   `datecreated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `lastmodified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`lvc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

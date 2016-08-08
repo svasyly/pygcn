@@ -1,0 +1,7 @@
+CREATE TABLE `lvc_galaxies` (
+  `galaxy_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `voevent_id` text NOT NULL,
+  `glade_id` varchar(45) NOT NULL,
+  `score` text,
+ PRIMARY KEY (`galaxy_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
