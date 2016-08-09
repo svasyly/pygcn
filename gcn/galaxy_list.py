@@ -14,7 +14,7 @@ import sys
 #parameters:
 credzone = 0.99
 nsigmas_in_d = 3
-ngalaxtoshow = 200
+ngalaxtoshow = 10
 airmass_thresholdp = 10
 completenessp = 0.5
 minGalaxies = 60
@@ -149,7 +149,10 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     #         galaxylist[i,:] = [galax[ind, 0], galax[ind, 1], galax[ind,2], galax[ind,3], (p*luminosityNorm/normalization)[ind]]
     #         i = i+1
     #     n = n+1
+    print range(ngalaxtoshow)
 
+    #if ngalaxtoshow > len(ii):
+        #ngalaxtoshow = len(ii)
     for i in range(ngalaxtoshow):
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],

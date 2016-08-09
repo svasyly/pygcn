@@ -29,7 +29,7 @@ import voeventparse as vp
 
 
 
-def lvc_insert(root)
+def lvc_insert(root, payload):
     ivorn = root.attrib['ivorn']
     filename = urllib.quote_plus(ivorn)
     with open(filename, "w") as f:

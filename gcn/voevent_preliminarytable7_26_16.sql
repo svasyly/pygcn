@@ -43,6 +43,7 @@ CREATE TABLE `voevent_lvc` (
   `kagra_participated` varchar(45) NOT NULL,
   `lio_participated` varchar(45) NOT NULL,
   `sequence_number` text NOT NULL,
+  `skymap_url_fits_basic` text,
   `observatorylocation_id` text NOT NULL,
   `astrocoordsystem_id` text NOT NULL,
   `timeunit` varchar(45) NOT NULL,
@@ -54,5 +55,5 @@ CREATE TABLE `voevent_lvc` (
   `concept` text,
   `datecreated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `lastmodified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`lvc_id`)
+  PRIMARY KEY (`voevent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
