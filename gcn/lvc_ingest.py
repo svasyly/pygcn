@@ -51,26 +51,10 @@ def lvc_insert(root, payload):
         #ObservationInfo		
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
 
-        #print dict1
+        #insert into table
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
         conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
-	#for item in diclist:
-        #lsc.mysqldef.insert_values(conn, "glade_catalog", item)
 	join_table.join_lvc_voevent(conn, "voevent_lvc", dict1)
-	header = ['ra0', 'dec0', 'dist', 'bmag', 'bt_hyp', 'e_bt_hyp', 'it_hyp', 'e_it_hyp', 'modz_hyp', 'mod0_hyp', 'logd25_hyp', 'e_logd25_hyp', 'logr25_hyp', 'e_logr25_hyp', 'logdc_hyp', 'pa_hyp', 'btc_hyp', 'itc_hyp', 'ubtc_hyp', 'bvtc_hyp', 'jmag_2mass', 'errjmag_2mass', 'hmag_2mass', 'errhmag_2mass', 'kmag_2mass', 'errkmag_2mass', 'ab_ratio_2mass', 'pa_in_kmag_2mass', 'bmag_gwgc', 'majdiam_gwgc', 'errmd_gwgc', 'mindiam_gwgc', 'errmid_gwgc', 'pa_gwgc', 'dist_gwgc', 'errdist_gwgc', 'errbmag_gwgc', 'kmag_2mpz', 'errkmag_2mpz', 'bmag_2mpz', 'errbmag_2mpz', 'errbmag_2_2mpz', 'zspec_2mpz', 'zphot_2mpz', 'errzphot_2mpz', 'errzphot_2_2mpz', 'flag']
-	f = open('/home/svasylyev/Downloads/GLADE_1.2.txt')
-	#counter = 0
-	#limit = 100
-	#diclist = []
-#header = ['ra0','dec0','dist','bmag','bt_hyp','e_bt_hyp','it_hyp','e_it_hyp','modz_hyp','mod0_hyp','logd25_hyp','e_logd25_hyp','logr25_hyp','e_logr25_hyp','logdc_hyp','']
-	#for line in f:
-            #counter += 1
-	    #print counter
-    	    #dic = {}
-    	    #if counter == limit: break
-    	    #for i in range(len(header)):
-        	#dic.update({header[i]: line.split()[i]})
-    	  #lsc.mysqldef.insert_values(conn, "glade_catalog", dic)
 	
             
     #The following is to act on both Initial and Update Notices
@@ -96,7 +80,6 @@ def lvc_insert(root, payload):
         #print dict1
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
         conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
-        #lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 	join_table.join_lvc_voevent(conn, "voevent_lvc", dict1)
 	
 
