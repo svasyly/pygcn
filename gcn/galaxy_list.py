@@ -14,7 +14,7 @@ import sys
 #parameters:
 credzone = 0.99
 nsigmas_in_d = 3
-ngalaxtoshow = 10
+ngalaxtoshow = 10 #the no. of galaxies to be included in galaxy list
 airmass_thresholdp = 10
 completenessp = 0.5
 minGalaxies = 60
@@ -150,8 +150,6 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     #     n = n+1
     print range(ngalaxtoshow)
 
-    #if ngalaxtoshow > len(ii):
-        #ngalaxtoshow = len(ii)
     import lsc
     import join_table
     hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
@@ -160,12 +158,8 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],
                             (p * luminosityNorm / normalization)[ind]]
-	#print (p * luminosityNorm / normalization)[ind]
-        join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind, galax)
-        #join_table.join_score(conn,'lvc_galaxies',p,luminosityNorm,normalization,ind)
-    #print scorelist	
+        join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind, galax) #creates table with columns corresponding to voevent_id, glade_id, score 
     return galaxylist#[:i,:]#uncomment to include only observable galaxies.
-    #join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind)
 
     ##########################################################################################################
 
