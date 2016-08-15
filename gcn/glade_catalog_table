@@ -47,5 +47,5 @@ CREATE TABLE `glade_catalog` (
   `errzphot_2mpz` double,
   `errzphot_2_2mpz` double,
   `flag` double,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`glade_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -139,7 +139,6 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     #creating sorted galaxy list, containing info on #ngalaxtoshow. each entry is (RA, DEC, distance(Mpc), Bmag, score)
     #score is normalized so that all the galaxies in the field sum to 1 (before luminosity cutoff)
     galaxylist = np.ndarray((ngalaxtoshow, 5))
-
     ###uncomment to include only observable galaxies.
     # i=0
     # n=0
@@ -153,12 +152,20 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
 
     #if ngalaxtoshow > len(ii):
         #ngalaxtoshow = len(ii)
+    import lsc
+    import join_table
+    hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
+    conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
     for i in range(ngalaxtoshow):
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],
                             (p * luminosityNorm / normalization)[ind]]
-
+	#print (p * luminosityNorm / normalization)[ind]
+        join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind, galax)
+        #join_table.join_score(conn,'lvc_galaxies',p,luminosityNorm,normalization,ind)
+    #print scorelist	
     return galaxylist#[:i,:]#uncomment to include only observable galaxies.
+    #join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind)
 
     ##########################################################################################################
 
