@@ -154,6 +154,8 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     import join_table
     hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
     conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
+    
+    #add if statement here to make code adjust for fits files that inlude less than len(range(ngalaxtoshow)) galaxies.      
     for i in range(ngalaxtoshow):
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],
