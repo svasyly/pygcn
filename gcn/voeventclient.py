@@ -212,8 +212,6 @@ def _ingest_packet(sock, ivorn, handler, log):
             lvc_insert(root, payload)
 ####################################################################################LVC ONLY################################################################################
 
-
-
             if 'ivorn' not in root.attrib:
                 log.error("received voevent message without ivorn")
             else:

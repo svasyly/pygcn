@@ -54,10 +54,10 @@ def lvc_insert(root, payload):
         #insert into table
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
         conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
-	join_table.join_lvc_voevent(conn, "voevent_lvc", dict1)
+	lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 	
             
-    #The following is to act on both Initial and Update Notices
+    #The following is to act on both Initial and Update Notices-----------------------------------------------------------------------------------
     elif v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
     	keylist1 = ['ivorn','role','version']
     	dict1 = {}
@@ -80,7 +80,7 @@ def lvc_insert(root, payload):
         #print dict1
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
         conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
-	join_table.join_lvc_voevent(conn, "voevent_lvc", dict1)
+	lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 	
 
 	#wget command
