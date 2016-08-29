@@ -73,6 +73,7 @@ def lvc_insert(root, payload):
 	    os.system(command)
 	    import galaxy_list
 	    galaxy_map = galaxy_list.find_galaxy_list('/home/svasylyev/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz')
+
 	    print galaxy_map #prints out the coordinates in form [RA, DEC, Distance to obj(in Mpc), Bmag, probability score]
 
 	else:
@@ -88,6 +89,15 @@ def lvc_insert(root, payload):
     
         #xmlns
         dict1.update({'xmlns_voe': "http://www.ivoa.net/xml/VOEvent/v2.0",'xmlns_xsi': "http://www.w3.org/2001/XMLSchema-instance",'xsi_schemalocation': "http://www.ivoa.net/xml/VOEvent/v2.0  http://www.ivoa.net/xml/VOEvent/VOEvent-v2.0.xsd"})
+
+	#parameters
+	dict1.update({'packet_type': v.find(".//Param[@name='Packet_Type']").attrib['value'],'pkt_ser_num': v.find(".//Param[@name='Pkt_Ser_Num']").attrib['value'],'trig_id': v.find(".//Param[@name='TrigID']").attrib['value'],'event_tjd': v.find(".//Param[@name='Event_TJD']").attrib['value'],'nevents': v.find(".//Param[@name='Nevents']").attrib['value'],'stream': v.find(".//Param[@name='Stream']").attrib['value'],'rev': v.find(".//Param[@name='Rev']").attrib['value'],'false_pos': v.find(".//Param[@name='False_pos']").attrib['value'],'pvalue': v.find(".//Param[@name='pvalue']").attrib['value'],'deltat': v.find(".//Param[@name='deltaT']").attrib['value'],'sigmat': v.find(".//Param[@name='sigmaT']").attrib['value'],'charge': v.find(".//Param[@name='charge']").attrib['value'],'signalness': v.find(".//Param[@name='signalness']").attrib['value'],'hesetypeindex': v.find(".//Param[@name='hesetypeindex']").attrib['value'],'trigger_id': v.find(".//Param[@name='Trigger_ID']").attrib['value'],'misc_flags': v.find(".//Param[@name='Misc_flags']").attrib['value'],'subtype': v.find(".//Param[@name='SubType']").attrib['value'],'test': v.find(".//Param[@name='Test']").attrib['value'],'radec_valid': v.find(".//Param[@name='RADec_valid']").attrib['value'],'retraction': v.find(".//Param[@name='Retraction']").attrib['value'],'internal_test': v.find(".//Param[@name='InternalTest']").attrib['value']})
+
+	#ObservationInfo		
+        dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'ra0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C1,'dec0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C2,'error2radius': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Error2Radius, 'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
         print dict1
+	hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
+	conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
+	lsc.mysqldef.insert_values(conn, "voevent_amon", dict1)
 #################################################################################LVC#################################################################################################   
 
