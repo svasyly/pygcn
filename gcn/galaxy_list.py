@@ -14,7 +14,7 @@ import sys
 #parameters:
 credzone = 0.99
 nsigmas_in_d = 3
-ngalaxtoshow = 10 #the no. of galaxies to be included in galaxy list
+ngalaxtoshow = 100 #the no. of galaxies to be included in galaxy list
 airmass_thresholdp = 10
 completenessp = 0.5
 minGalaxies = 60
