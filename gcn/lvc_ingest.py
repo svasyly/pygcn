@@ -56,7 +56,7 @@ def lvc_insert(root, payload):
         #to act on both Initial and Update Notices
         if v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
             dict1.update({'skymap_url_fits_basic': v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value']}) 
-            print dict1 
+            #print dict1 
 
         #insert into table
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
@@ -65,6 +65,7 @@ def lvc_insert(root, payload):
 
         if v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
             import galaxy_list
+
             #wget command
             import os
             command = 'wget --auth-no-challenge ' + v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value'] + ' -O' + ' /supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz'
@@ -95,9 +96,11 @@ def lvc_insert(root, payload):
 
         #ObservationInfo                
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'ra0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C1,'dec0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C2,'error2radius': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Error2Radius, 'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
-        print dict1
+        #print dict1
         hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
         conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
         lsc.mysqldef.insert_values(conn, "voevent_amon", dict1)
+    else:
+        pass
 #################################################################################LVC#################################################################################################   
 
