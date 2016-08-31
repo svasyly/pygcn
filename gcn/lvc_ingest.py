@@ -1,6 +1,7 @@
 import socket
 import struct
 import time
+
 # Prefer lxml.etree over xml.etree (it's faster)
 try:
     import lxml.etree
@@ -22,7 +23,8 @@ import urllib
 import join_table
 import lsc
 import voeventparse as vp
-
+import os
+import galaxy_list
 def lvc_insert(root, payload):
     ivorn = root.attrib['ivorn']
     filename = urllib.quote_plus(ivorn)
@@ -64,18 +66,16 @@ def lvc_insert(root, payload):
         lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 
         if v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
-            import galaxy_list
 
             #wget command
-            import os
             command = 'wget --auth-no-challenge ' + v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value'] + ' -O' + ' /supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz'
 
             #print command 
             os.system(command)
-            import galaxy_list
-            galaxy_map = galaxy_list.find_galaxy_list('/supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz')
+           
+            galaxy_map = galaxy_list.find_galaxy_list('/supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz') #fetches FITS file
 
-            print galaxy_map #prints out the coordinates in form [RA, DEC, Distance to obj(in Mpc), Bmag, probability score]
+            #print galaxy_map #prints out the coordinates in form [RA, DEC, Distance to obj(in Mpc), Bmag, probability score]
 
         else:
             pass              
@@ -102,5 +102,7 @@ def lvc_insert(root, payload):
         lsc.mysqldef.insert_values(conn, "voevent_amon", dict1)
     else:
         pass
+    print "DONE"
+    #os.system("rm " + filename) #uncomment if you want received voevents to be removed from archive after program runs
 #################################################################################LVC#################################################################################################   
 

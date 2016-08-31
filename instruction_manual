@@ -1,0 +1,47 @@
+A Guide to Using PYGCN
+Sergiy Vasylyev 
+
+1) Installing the package and adding necessary modules
+
+    -Github link: https://github.com/svasyly/pygcn.
+    -To setup the files in pygcn: go to home directory/github/pygcn and run 'python setup.py install' in terminal.
+    -You may need to import the following modules: healpy, cosmolopy, voevent-parse, requests, astropy, numpy (use pip install command)
+
+2) How to use the voevent listener (with pygcn-listen)
+
+    -In order to listen for public GCN voevents, simply go into the ../pygcn directory (note: not necessary to be in this directory, but received events stored in pwd) in terminal and run 'pygcn-listen' (this 
+     will choose a default host and port)
+    -To connect to a specific server, input the following: pygcn-listen theHOSTnumber:thePORTnumber (note: if using port 8099, you will get public notices only); Example: pygcn-listen 68.169.57.253:8099
+
+3) Receiving private voevents
+
+    -First thing to do is to give your IP address permission to receive these private events by adding or modifying a GCN configuration at this url: http://gcn.gsfc.nasa.gov/config_builder.html
+    -Here, make sure to check mark all of the voevents you want to receive (they are automatically filtered). Click submit at bottom of page (MAKE SURE to include your ip address)
+    -I can take some time to authorize your computer
+
+4) Accessing Gracedb (remote authorization to access LIGO fits files)
+
+    -Make .netrc file that has your generated user and password stored: For information go to http://nbviewer.jupyter.org/github/lpsinger/ligo-virgo-emfollowup-tutorial/blob/master/ligo-virgo-
+     emfollowup-tutorial.ipynb and look under "2.Sign up for a GraceDb robot password".
+
+5) Use gcn/lvc_ingest.py to make changes to what voevents are received (filtered) and how to act on them.
+
+6) Changing number of galaxies to pick from glade catalog
+
+    -Go to gcn/galaxy_list.py and change the global variable ngalaxtoshow (near top) to the desired value.
+
+7) Serving voevents
+
+    -Example: pygcn-serve filename1 filename2 filenameN (you can send multiple events)
+    -To receive these events run: pygcn-listen 127.0.0.1
+
+8) FITS file storage
+
+    -Currently files are stored in the directory: /supernova/ligoevent_fits
+    -To change: Go to gcn/lvc_ingest.py and change this directory to /yourhome/ligoevent_fits. BE SURE to change this for all instances of this directory in this .py file.
+
+9) Creating SQL tables
+
+    -Tables and example sql code provided in the gcn folder of the github: https://github.com/svasyly/pygcn/gcn
+----------------------------------------------------------------------------------- 
+If you have questions, contact me at svasylyev@umail.ucsb.edu or sergiyjr@yahoo.com

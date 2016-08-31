@@ -70,7 +70,7 @@ def archive(payload, root):
     IVORN."""
     ivorn = root.attrib['ivorn']
     filename = urllib.quote_plus(ivorn)
-    with open(filename, "w") as f:
-        f.write(payload)
-    logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
+    #with open(filename, "w") as f:
+    #    f.write(payload)
+    #logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
 

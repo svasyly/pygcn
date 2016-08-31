@@ -8,7 +8,7 @@ def join_galaxy(conn,table,p,luminosityNorm,normalization,ind,galax):
     try:
         cursor = conn.cursor (MySQLdb.cursors.DictCursor)
 	
-        v = cursor.execute('INSERT INTO lvc_galaxies(voeventid,score,gladeid)'+ ' VALUES('+ 
+        v = cursor.execute('INSERT INTO '+ table + '(voeventid,score,gladeid)'+ ' VALUES('+ 
 '(SELECT MAX(id) from voevent_lvc),' + str((p * luminosityNorm / normalization)[ind]) + ',(SELECT id from glade WHERE ra0 =' + str(galax[ind, 0]) + ' AND ' + 'dec0 ='+ str(galax[ind, 1])+ '))') #adds to table
 	print v
         if cursor.rowcount == 0:
