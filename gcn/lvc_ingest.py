@@ -34,8 +34,11 @@ def lvc_insert(root, payload):
     with open(filename) as f:
         v = vp.load(f)
     v
-###################################################################################LVC ONLY################################################################################
-    #To act on Preliminary Notices        
+
+    #Connect to a database
+    hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
+    conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
+###################################################################################LVC ONLY#############################################################################  
     if "LVC" in ivorn: 
         
         keylist1 = ['ivorn','role','version'] 
@@ -55,30 +58,29 @@ def lvc_insert(root, payload):
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
 
         
-        #to act on both Initial and Update Notices
+        #to act on both Initial and Update notices
         if v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
             dict1.update({'skymap_url_fits_basic': v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value']}) 
-            #print dict1 
 
         #insert into table
-        hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
-        conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
         lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 
-        if v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update" :
+        if (v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update") and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M" : #remove 'and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M"' in order to save LVC M-series (or test events that occur every 10 min) to lvc_galaxies table
 
             #wget command
             command = 'wget --auth-no-challenge ' + v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value'] + ' -O' + ' /supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz'
 
             #print command 
             os.system(command)
-           
-            galaxy_map = galaxy_list.find_galaxy_list('/supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz') #fetches FITS file
+            
+            #fetch FITS file
+            galaxy_map = galaxy_list.find_galaxy_list('/supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz') 
 
             #print galaxy_map #prints out the coordinates in form [RA, DEC, Distance to obj(in Mpc), Bmag, probability score]
 
         else:
-            pass              
+            pass       
+#######################################################################LVC ONLY ^#########################################################################       
     elif "ICECUBE" in ivorn:
      
         keylist1 = ['ivorn','role','version'] 
@@ -96,13 +98,12 @@ def lvc_insert(root, payload):
 
         #ObservationInfo                
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'ra0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C1,'dec0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C2,'error2radius': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Error2Radius, 'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
-        #print dict1
-        hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
-        conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
+
+        #insert into table
         lsc.mysqldef.insert_values(conn, "voevent_amon", dict1)
     else:
         pass
     print "DONE"
     #os.system("rm " + filename) #uncomment if you want received voevents to be removed from archive after program runs
-#################################################################################LVC#################################################################################################   
+
 

@@ -18,6 +18,7 @@ Sergiy Vasylyev
     -First thing to do is to give your IP address permission to receive these private events by adding or modifying a GCN configuration at this url: http://gcn.gsfc.nasa.gov/config_builder.html
     -Here, make sure to check mark all of the voevents you want to receive (they are automatically filtered). Click submit at bottom of page (MAKE SURE to include your ip address)
     -I can take some time to authorize your computer
+    -Some available GCN servers can be found at https://github.com/svasyly/pygcn/blob/master/gcn/GCN_server_list
 
 4) Accessing Gracedb (remote authorization to access LIGO fits files)
 
@@ -45,9 +46,8 @@ Sergiy Vasylyev
     -Tables and example sql code provided in the gcn folder of the github: https://github.com/svasyly/pygcn/gcn
     -If you want to remove everything in table then run the following in mysql: DELETE FROM tablename
     -If you want to reset the id auto increment for tables, run the following in mysql: ALTER TABLE tablename AUTO_INCREMENT = 1 
-     
-
-10) Connecting to database 
+    
+10) Connecting to a database 
 
     -See lcogtsnpipe on github for instructions on making a configure file: https://github.com/svalenti/lcogtsnpipe
 
