@@ -43,5 +43,18 @@ Sergiy Vasylyev
 9) Creating SQL tables
 
     -Tables and example sql code provided in the gcn folder of the github: https://github.com/svasyly/pygcn/gcn
+    -If you want to remove everything in table then run the following in mysql: DELETE FROM tablename
+    -If you want to reset the id auto increment for tables, run the following in mysql: ALTER TABLE tablename AUTO_INCREMENT = 1 
+     
+
+10) Connecting to database 
+
+    -See lcogtsnpipe on github for instructions on making a configure file: https://github.com/svalenti/lcogtsnpipe
+
+Additional comments: 
+*If any changes are made to pygcn, then make sure to run the command 'python setup.py install' in terminal.
+*If test events are dumping too many voevents in your working directory, then go to gcn/lvc_ingest.py and uncomment the os.system("rm " +filename) line. 
+*NOTE: this is a fork of pygcn 
 ----------------------------------------------------------------------------------- 
 If you have questions, contact me at svasylyev@umail.ucsb.edu or sergiyjr@yahoo.com
+Acknowledgements: Leo P. Singer, Scott Barthelmy, David Guevel 
