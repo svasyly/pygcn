@@ -1,17 +1,20 @@
 A Guide to Using PYGCN
 Sergiy Vasylyev 
 
-1) Installing the package and adding necessary modules
+1) Installing the package
 
-    -Github link: https://github.com/svasyly/pygcn.
-    -To setup the files in pygcn: go to ~/github/pygcn and run 'python setup.py install' in terminal.
-    -You may need to install the following modules: healpy, cosmolopy, voevent-parse, requests, astropy, numpy (use pip install command)
+    -Create and activate a conda environment with the necessary modules:
+        conda create -p /path/to/pygcn python=2.7 numpy matplotlib mysql-python astropy scipy requests astroquery healpy -c openastronomy
+        source activate /path/to/pygcn
+        pip install voevent-parse cosmolopy
+    -Then install lcogtsnpipe (https://github.com/svalenti/lcogtsnpipe.git) and pygcn (https://github.com/svasyly/pygcn.git)
+     by cloning them from github and running 'python setup.py install' for each of them
 
 2) How to use the voevent listener (with pygcn-listen)
 
-    -In order to listen for public GCN voevents, simply go into the ../pygcn directory (note: not necessary to be in this directory, but received events stored in pwd) in terminal and run 'pygcn-listen' (this 
-     will choose a default host and port)
-    -To connect to a specific server, input the following: pygcn-listen theHOSTnumber:thePORTnumber (note: if using port 8099, you will get public notices only); Example: pygcn-listen 68.169.57.253:8099
+    -The listener stores XML files in the current working directory, so run it somewhere that you don't mind cluttering up
+    -In order to listen for public GCN voevents, simply run 'pygcn-listen' (this will choose a default host and port 8099)
+    -To connect to a specific server, input the following: pygcn-listen theHOSTnumber:thePORTnumber (example: pygcn-listen 68.169.57.253:8099)
 
 3) Receiving private voevents
 
