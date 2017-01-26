@@ -1,38 +1,42 @@
-import healpy as hp
+import healpy as hp # UPDATED VERSION
 import numpy as np
 from scipy.stats import norm
 from scipy.special import gammaincinv
 from scipy.special import gammaincc
 import cosmolopy.magnitudes as mag
-from astropy.utils.data import download_file
-from astropy.cosmology import default_cosmology
-cosmo = default_cosmology.get()
 
-from observational_const import *
-import sys
 
 #parameters:
 credzone = 0.99
 nsigmas_in_d = 3
-ngalaxtoshow = 100 #the no. of galaxies to be included in galaxy list
 airmass_thresholdp = 10
 completenessp = 0.5
-minGalaxies = 60
+minGalaxies = 100
 
-#schecter funtion parameters:
+#magnitude of event in r-band. values are value from barnes... +-1.5 mag
+minmag = -12.
+maxmag = -17.
+sensitivity = 22
+
+
+mindistFactor = 0.01 #reflecting a small chance that the theory is comletely wrong and we can still see something
+
+minL = mag.f_nu_from_magAB(minmag)
+maxL = mag.f_nu_from_magAB(maxmag)
+
+
+#schecter function parameters:
 alpha = -1.07
 MB_star = -20.7 ## random slide from https://www.astro.umd.edu/~richard/ASTRO620/LumFunction-pp.pdf but not really...?
 
 
 
 def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completeness = completenessp, credzone = 0.99):
-
     #loading the map:
     prob, distmu, distsigma, distnorm = hp.read_map(map_path, field=[0, 1, 2, 3], verbose=False)
 
     #loading the galaxy catalog. this one contains only RA, DEC, distance, Bmag
     galax = np.load("glade_RA_DEC.npy")
-
 
     #map parameters:
     npix = len(prob)
@@ -49,20 +53,29 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     #converting galaxy coordinates to map pixels:
     ipix = hp.ang2pix(nside, theta, phi)
 
+
+    maxprobcoord_tup = hp.pix2ang(nside, np.argmax(prob))
+    maxprobcoord = [0, 0]
+    maxprobcoord[0] = np.rad2deg(0.5*np.pi-maxprobcoord_tup[0])
+    maxprobcoord[1] = np.rad2deg(maxprobcoord_tup[1])
+
+
     #finding given percent probability zone(default is 99%):
-    ####################################################
 
     probcutoff = 1
     probsum = 0
+    npix99 = 0
 
     sortedprob = np.sort(prob)
     while probsum<credzone:
         probsum = probsum+sortedprob[-1]
         probcutoff = sortedprob[-1]
         sortedprob = sortedprob[:-1]
+        npix99 = npix99+1
+
+    area = npix99 * hp.nside2pixarea(nside, degrees=True)
 
     ####################################################
-
 
     #calculating probability for galaxies by the localization map:
     p = prob[ipix]
@@ -73,14 +86,39 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     inddistance = np.where(np.abs(d-distmu[ipix])<nsigmas_in_d*distsigma[ipix])
     indcredzone = np.where(p>=probcutoff)
 
-    galax = galax[np.intersect1d(indcredzone,inddistance)]
-    ipix = ipix[np.intersect1d(indcredzone,inddistance)]
-    p = p[np.intersect1d(indcredzone,inddistance)]
-    p = (p*(distp[np.intersect1d(indcredzone,inddistance)]))##d**2?
+    doMassCuttoff = True
+
+
+#if no galaxies
+    if (galax[np.intersect1d(indcredzone,inddistance)]).size == 0:
+        while probsum < 0.99995:
+            if sortedprob.size == 0:
+                break
+            probsum = probsum + sortedprob[-1]
+            probcutoff = sortedprob[-1]
+            sortedprob = sortedprob[:-1]
+            npix99 = npix99 + 1
+        inddistance = np.where(np.abs(d - distmu[ipix]) < 5 * distsigma[ipix])
+        indcredzone = np.where(p >= probcutoff)
+        doMassCuttoff = False
+
+    ipix = ipix[np.intersect1d(indcredzone, inddistance)]
+    p = p[np.intersect1d(indcredzone, inddistance)]
+    p = (p * (distp[np.intersect1d(indcredzone, inddistance)]))  ##d**2?
+
+
+    galax = galax[np.intersect1d(indcredzone, inddistance)]
+    if galax.size == 0:
+        print "no galaxies in field"
+        print "99.995% of probability is ", npix99*hp.nside2pixarea(nside, degrees=True), "deg^2"
+        print "peaking at [RA,DEC](deg) = ", maxprobcoord
+        return
+
 
     # normalized luminosity to account for mass:
     luminosity = mag.L_nu_from_magAB(galax[:, 3] - 5 * np.log10(galax[:, 2] * (10 ** 5)))
     luminosityNorm = luminosity / np.sum(luminosity)
+    luminositynormalization = np.sum(luminosity)
     normalization = np.sum(p * luminosityNorm)
 
     #taking 50% of mass (missingpiece is the area under the schecter function between l=inf and the brightest galaxy in the field.
@@ -89,7 +127,6 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
 
     missingpiece = gammaincc(alpha + 2, 10 ** (-(min(galax[:,3]-5*np.log10(galax[:,2]*(10**5))) - MB_star) / 2.5)) ##no galaxies brighter than this in the field- so don't count that part of the Schechter function
 
-    doMassCuttoff = True
     while doMassCuttoff:
         MB_max = MB_star + 2.5 * np.log10(gammaincinv(alpha + 2, completeness+missingpiece))
 
@@ -110,61 +147,71 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
             luminosityNorm = luminosityNorm[brightest]
             doMassCuttoff = False
 
-    #including observation constraints. (uses code in observational_const.py)
-    indices = get_observables(galax, airmass_threshold)
-    haleakalaObservable = indices['indHal']
-    sidingSpringObservable = indices['indSS']
 
+
+
+#accounting for distance
+    absolute_sensitivity =  sensitivity - 5 * np.log10(galax[:, 2] * (10 ** 5))
+
+    absolute_sensitivity_lum = mag.f_nu_from_magAB(absolute_sensitivity)
+    distanceFactor = np.zeros(galax.shape[0])
+
+    distanceFactor[:] = ((maxL - absolute_sensitivity_lum) / (maxL - minL))
+    distanceFactor[mindistFactor>(maxL - absolute_sensitivity_lum) / (maxL - minL)] = mindistFactor
+    distanceFactor[absolute_sensitivity_lum<minL] = 1
+    distanceFactor[absolute_sensitivity>maxL] = mindistFactor
 
 
     #sorting glaxies by probability
-    ii = np.argsort(p*luminosityNorm)[::-1]
-    
+    ii = np.argsort(p*luminosityNorm*distanceFactor)[::-1]
+
+
+
+
     ####counting galaxies that constitute 50% of the probability(~0.5*0.98)
     sum = 0
     galaxies50per = 0
     observable50per = 0 #how many of the galaxies in the top 50% of probability are observable.
+    sum_seen = 0
     enough = True
     while sum<0.5:
         if galaxies50per>= len(ii):
             enough = False
             break
         sum = sum + (p[ii[galaxies50per]]*luminosityNorm[ii[galaxies50per]])/float(normalization)
-        if ii[galaxies50per] in haleakalaObservable or ii[galaxies50per] in sidingSpringObservable:
-            observable50per = observable50per + 1
+        sum_seen = sum_seen + (p[ii[galaxies50per]]*luminosityNorm[ii[galaxies50per]]*distanceFactor[ii[galaxies50per]])/float(normalization)
         galaxies50per = galaxies50per+1
-    ####
+
+    #event stats:
+    #
+    # Ngalaxies_50percent = number of galaxies consisting 50% of probability (including luminosity but not distance factor)
+    # actual_percentage = usually arround 50
+    # seen_percentage = if we include the distance factor- how much are the same galaxies worth
+    # 99percent_area = area of map in [deg^2] consisting 99% (using only the map from LIGO)
+    stats = {"Ngalaxies_50percent": galaxies50per, "actual_percentage": sum*100, "seen_percentage": sum_seen, "99percent_area": area}
 
 
-    #creating sorted galaxy list, containing info on #ngalaxtoshow. each entry is (RA, DEC, distance(Mpc), Bmag, score)
+    #creating sorted galaxy list, containing info. each entry is (RA, DEC, distance(Mpc), Bmag, score, distance factor(between 0-1))
     #score is normalized so that all the galaxies in the field sum to 1 (before luminosity cutoff)
-    galaxylist = np.ndarray((ngalaxtoshow, 5))
-    ###uncomment to include only observable galaxies.
-    # i=0
-    # n=0
-    # while i<ngalaxtoshow and n<galax.shape[0]:
-    #     ind = ii[n]
-    #     if ind in haleakalaObservable or ind in sidingSpringObservable:
-    #         galaxylist[i,:] = [galax[ind, 0], galax[ind, 1], galax[ind,2], galax[ind,3], (p*luminosityNorm/normalization)[ind]]
-    #         i = i+1
-    #     n = n+1
-    print range(ngalaxtoshow)
-
+    galaxylist = np.ndarray((galax.shape[0], 6))
+    
+    #connecting to database
     import lsc
     import join_table
     hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
     conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
 
-    #created variable n to make code adapt to number of galaxies actually available
-    n = len(ii)  
-    for i in range(ngalaxtoshow)[:n]: 
+    ngalaxtoshow = 100 # SET NO. OF BEST GALAXIES TO USE
+    if len(ii) > ngalaxtoshow:
+        n = ngalaxtoshow
+    else:
+        n = len(ii)
+
+    #adding to galaxy table database
+    for i in range(ii.shape[0])[:n]:
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],
-                            (p * luminosityNorm / normalization)[ind]]
+                            (p * luminosityNorm / normalization)[ind], distanceFactor[ind]]
         join_table.join_galaxy(conn, "lvc_galaxies", p, luminosityNorm, normalization, ind, galax) #creates table "lvc_galaxies" with columns corresponding to voevent_id, glade_id, score 
-    return galaxylist#[:i,:]#uncomment to include only observable galaxies.
-  
-    ##########################################################################################################
-
-#to call function with commandline:
-# print find_galaxy_list(sys.argv[1])
+    
+    return galaxylist #, stats
