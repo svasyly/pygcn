@@ -41,8 +41,26 @@ def lvc_insert(root, payload):
 ###################################################################################LVC ONLY#############################################################################  
     if "LVC" in ivorn: 
         
-        keylist1 = ['ivorn','role','version'] 
         dict1 = {}
+        #Parameters
+        paramlist = ['packet_type','pkt_ser_num','alert_type','graceid',
+'id_letter','trig_id','trigger_tjd','trigger_sod','eventpage','search','pipeline','internal','far','chirpmass','eta','maxdistance','trigger_id','misc_flags',
+'lvc_internal','test','retraction','internal_test','num_det_participated','lho_participated','llo_participated','virgo_participated','geo600_participated',
+'kagra_participated','lio_participated','sequence_number','_group','probhasns','probhasremnant','hardwareinj','vetted','openalert','temporalcoinc']
+
+        valuelist = ['Packet_Type','Pkt_Ser_Num','AlertType','GraceID','ID_Letter','TrigID','Trigger_TJD','Trigger_SOD',
+'EventPage','Search','Pipeline','Internal','FAR','ChirpMass','ETA','MaxDistance','Trigger_ID','Misc_flags',
+'LVC_Internal','Test','Retraction','InternalTest','Num_Det_participated','LHO_participated',
+'LLO_participated','Virgo_participated','GEO600_participated','KAGRA_participated','LIO_participated','Sequence_number',
+'Group','ProbHasNS','ProbHasRemnant','HardwareInj','Vetted','OpenAlert','TemporalCoinc']
+
+
+        dict1 = {key: (v.find(".//Param[@name='"+ value +"']").attrib['value'] if v.find(".//Param[@name='"+ value +"']") is not None else None) for key, value in zip(paramlist, valuelist)}
+
+        dict1.update({'skymap_url_fits_basic': ""})
+
+        keylist1 = ['ivorn','role','version'] 
+        
         for key in keylist1:
                 dict1[key] = v.attrib[key]
         #Source
@@ -51,8 +69,7 @@ def lvc_insert(root, payload):
         #xmlns
         dict1.update({'xmlns_voe': "http://www.ivoa.net/xml/VOEvent/v2.0",'xmlns_xsi': "http://www.w3.org/2001/XMLSchema-instance",'xsi_schemalocation': "http://www.ivoa.net/xml/VOEvent/v2.0  http://www.ivoa.net/xml/VOEvent/VOEvent-v2.0.xsd"})
 
-        #Parameters
-        dict1.update({'packet_type': v.find(".//Param[@name='Packet_Type']").attrib['value'],'pkt_ser_num': v.find(".//Param[@name='Pkt_Ser_Num']").attrib['value'],'alert_type': v.find(".//Param[@name='AlertType']").attrib['value'],'graceid': v.find(".//Param[@name='GraceID']").attrib['value'],'id_letter': v.find(".//Param[@name='ID_Letter']").attrib['value'],'trig_id': v.find(".//Param[@name='TrigID']").attrib['value'],'trigger_tjd': v.find(".//Param[@name='Trigger_TJD']").attrib['value'],'trigger_sod': v.find(".//Param[@name='Trigger_SOD']").attrib['value'],'eventpage': v.find(".//Param[@name='EventPage']").attrib['value'],'search': v.find(".//Param[@name='Search']").attrib['value'],'pipeline': v.find(".//Param[@name='Pipeline']").attrib['value'],'internal': v.find(".//Param[@name='Internal']").attrib['value'],'far': v.find(".//Param[@name='FAR']").attrib['value'],'chirpmass': '','eta': '','maxdistance': '','trigger_id': v.find(".//Param[@name='Trigger_ID']").attrib['value'],'misc_flags': v.find(".//Param[@name='Misc_flags']").attrib['value'],'lvc_internal': v.find(".//Param[@name='LVC_Internal']").attrib['value'],'test': v.find(".//Param[@name='Test']").attrib['value'],'retraction': v.find(".//Param[@name='Retraction']").attrib['value'],'internal_test': v.find(".//Param[@name='InternalTest']").attrib['value'],'num_det_participated': v.find(".//Param[@name='Num_Det_participated']").attrib['value'],'lho_participated': v.find(".//Param[@name='LHO_participated']").attrib['value'],'llo_participated': v.find(".//Param[@name='LLO_participated']").attrib['value'],'virgo_participated': v.find(".//Param[@name='Virgo_participated']").attrib['value'],'geo600_participated': v.find(".//Param[@name='GEO600_participated']").attrib['value'],'kagra_participated': v.find(".//Param[@name='KAGRA_participated']").attrib['value'],'lio_participated': v.find(".//Param[@name='LIO_participated']").attrib['value'],'sequence_number': v.find(".//Param[@name='Sequence_number']").attrib['value'],'_group': v.find(".//Param[@name='Group']").attrib['value'],'skymap_url_fits_basic': ""})
+        #dict1.update({'packet_type': v.find(".//Param[@name='Packet_Type']").attrib['value'],'pkt_ser_num': v.find(".//Param[@name='Pkt_Ser_Num']").attrib['value'],'alert_type': v.find(".//Param[@name='AlertType']").attrib['value'],'graceid': v.find(".//Param[@name='GraceID']").attrib['value'],'id_letter': v.find(".//Param[@name='ID_Letter']").attrib['value'],'trig_id': v.find(".//Param[@name='TrigID']").attrib['value'],'trigger_tjd': v.find(".//Param[@name='Trigger_TJD']").attrib['value'],'trigger_sod': v.find(".//Param[@name='Trigger_SOD']").attrib['value'],'eventpage': v.find(".//Param[@name='EventPage']").attrib['value'],'search': v.find(".//Param[@name='Search']").attrib['value'],'pipeline': v.find(".//Param[@name='Pipeline']").attrib['value'],'internal': v.find(".//Param[@name='Internal']").attrib['value'],'far': v.find(".//Param[@name='FAR']").attrib['value'],'chirpmass': 'NA','eta': 'NA','maxdistance': 'NA','trigger_id': v.find(".//Param[@name='Trigger_ID']").attrib['value'],'misc_flags': v.find(".//Param[@name='Misc_flags']").attrib['value'],'lvc_internal': v.find(".//Param[@name='LVC_Internal']").attrib['value'],'test': v.find(".//Param[@name='Test']").attrib['value'],'retraction': v.find(".//Param[@name='Retraction']").attrib['value'],'internal_test': v.find(".//Param[@name='InternalTest']").attrib['value'],'num_det_participated': v.find(".//Param[@name='Num_Det_participated']").attrib['value'],'lho_participated': v.find(".//Param[@name='LHO_participated']").attrib['value'],'llo_participated': v.find(".//Param[@name='LLO_participated']").attrib['value'],'virgo_participated': v.find(".//Param[@name='Virgo_participated']").attrib['value'],'geo600_participated': v.find(".//Param[@name='GEO600_participated']").attrib['value'],'kagra_participated': v.find(".//Param[@name='KAGRA_participated']").attrib['value'],'lio_participated': v.find(".//Param[@name='LIO_participated']").attrib['value'],'sequence_number': v.find(".//Param[@name='Sequence_number']").attrib['value'],'_group': v.find(".//Param[@name='Group']").attrib['value'],'skymap_url_fits_basic': ""})
 
         #ObservationInfo                
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
@@ -65,16 +82,16 @@ def lvc_insert(root, payload):
         #insert into table
         lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
 
-        if (v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update") and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M" : #remove 'and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M"' in order to save LVC M-series (or test events that occur every 10 min) to lvc_galaxies table
+        if (v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update"): # and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M" : #remove 'and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M"' in order to save LVC M-series (or test events that occur every 10 min) to lvc_galaxies table
 
             #wget command
-            command = 'wget --auth-no-challenge ' + v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value'] + ' -O' + ' /supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz'
+            command = 'wget --auth-no-challenge ' + v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value'] + ' -O' + ' /home/svasylyev/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz'
 
             #print command 
             os.system(command)
             
             #fetch FITS file
-            galaxy_map = galaxy_list.find_galaxy_list('/supernova/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz') 
+            galaxy_map = galaxy_list.find_galaxy_list('/home/svasylyev/ligoevent_fits/' + v.find(".//Param[@name='GraceID']").attrib['value'] + '_' + v.find(".//Param[@name='AlertType']").attrib['value'] + '.fits.gz') 
 
             #print galaxy_map #prints out the coordinates in form [RA, DEC, Distance to obj(in Mpc), Bmag, probability score]
 
