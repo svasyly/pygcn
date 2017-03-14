@@ -33,7 +33,27 @@ MB_star = -20.7 ## random slide from https://www.astro.umd.edu/~richard/ASTRO620
 
 def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completeness = completenessp, credzone = 0.99):
     #loading the map:
-    prob, distmu, distsigma, distnorm = hp.read_map(map_path, field=[0, 1, 2, 3], verbose=False)
+    try:
+        skymap = hp.read_map(map_path, field=None, verbose=False)
+    except Exception as e:
+        from smtplib import SMTP
+        msg = '''Subject: Failed to Read LVC Sky Map
+From: Super N. Ova <supernova@lco.gtn>
+To: sne@lco.global
+
+FITS file: {}
+Exception: {}'''.format(map_path, e)
+        s = SMTP('localhost')
+        s.sendmail('supernova@lco.gtn', ['sne@lco.global'], msg)
+        s.quit()
+        print 'Failed to read sky map. Sending email.'
+        return
+
+    if isinstance(skymap, tuple) and len(skymap) == 4:
+        prob, distmu, distsigma, distnorm = skymap
+    else:
+        print 'No distance information available. Cannot produce galaxy list.'
+        return
 
     #loading the galaxy catalog. this one contains only RA, DEC, distance, Bmag
     galax = np.load("glade_RA_DEC.npy")
@@ -201,7 +221,7 @@ def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completen
     hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
     conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
 
-    ngalaxtoshow = 100 # SET NO. OF BEST GALAXIES TO USE
+    ngalaxtoshow = 500 # SET NO. OF BEST GALAXIES TO USE
     if len(ii) > ngalaxtoshow:
         n = ngalaxtoshow
     else:
