@@ -20,11 +20,25 @@ import logging
 import datetime
 import base64
 import urllib
-import join_table
-import lsc
 import voeventparse as vp
 import os
 import galaxy_list
+import json
+import MySQLdb
+
+with open('/supernova/configure.json') as f:
+    conn = MySQLdb.connect(*json.load(f))
+
+def insert_values(table, dict_to_insert):
+    keys = dict_to_insert.keys()
+    vals = [str(dict_to_insert[key]) for key in keys]
+    query = 'INSERT INTO {} ({}) VALUES ({})'.format(table, ', '.join(keys), ', '.join(vals))
+    cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(query, dict_to_insert)
+    resultSet = cursor.fetchall()
+    conn.commit()
+    cursor.close()
+
 def lvc_insert(root, payload):
     ivorn = root.attrib['ivorn']
     filename = urllib.quote_plus(ivorn)
@@ -33,11 +47,7 @@ def lvc_insert(root, payload):
         logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
     with open(filename) as f:
         v = vp.load(f)
-    v
 
-    #Connect to a database
-    hostname, username, passwd, database = lsc.mysqldef.getconnection("lcogt2")
-    conn = lsc.mysqldef.dbConnect(hostname, username, passwd, database)
 ###################################################################################LVC ONLY#############################################################################  
     if "LVC" in ivorn: 
         
@@ -80,7 +90,7 @@ def lvc_insert(root, payload):
             dict1.update({'skymap_url_fits_basic': v.find(".//Param[@name='SKYMAP_URL_FITS_BASIC']").attrib['value']}) 
 
         #insert into table
-        lsc.mysqldef.insert_values(conn, "voevent_lvc", dict1)
+        insert_values("voevent_lvc", dict1)
 
         if (v.find(".//Param[@name='AlertType']").attrib['value'] == "Initial" or v.find(".//Param[@name='AlertType']").attrib['value'] == "Update") and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M" : #remove 'and not v.find(".//Param[@name='ID_Letter']").attrib['value'] == "M"' in order to save LVC M-series (or test events that occur every 10 min) to lvc_galaxies table
 
@@ -117,7 +127,7 @@ def lvc_insert(root, payload):
         dict1.update({'observatorylocation_id': v.WhereWhen.ObsDataLocation.ObservatoryLocation.attrib['id'],'astrocoordsystem_id': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoordSystem.attrib['id'],'timeunit': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.attrib['unit'],'isotime': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Time.TimeInstant.ISOTime,'ra0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C1,'dec0': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Value2.C2,'error2radius': v.WhereWhen.ObsDataLocation.ObservationLocation.AstroCoords.Position2D.Error2Radius, 'how_description': v.How.Description,'reference_uri': 'http://gcn.gsfc.nasa.gov/gcn/ligo.html','importance': v.Why.attrib['importance'],'inference_probability': v.Why.Inference.attrib['probability'],'concept': v.Why.Inference.Concept})
 
         #insert into table
-        lsc.mysqldef.insert_values(conn, "voevent_amon", dict1)
+        insert_values("voevent_amon", dict1)
     else:
         pass
     print "DONE"

@@ -175,7 +175,6 @@ def _form_response(role, origin, response, timestamp):
 import logging
 import urllib
 
-import lsc
 import voeventparse as vp
 def _ingest_packet(sock, ivorn, handler, log):
     """Ingest one VOEvent Transport Protocol packet and act on it, first sending

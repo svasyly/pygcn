@@ -4,8 +4,7 @@ from scipy.stats import norm
 from scipy.special import gammaincinv
 from scipy.special import gammaincc
 import cosmolopy.magnitudes as mag
-import json
-import MySQLdb
+from lvc_ingest import insert_values
 
 #parameters:
 credzone = 0.99
@@ -29,25 +28,6 @@ maxL = mag.f_nu_from_magAB(maxmag)
 #schecter function parameters:
 alpha = -1.07
 MB_star = -20.7 ## random slide from https://www.astro.umd.edu/~richard/ASTRO620/LumFunction-pp.pdf but not really...?
-
-with open('/supernova/configure.json') as f:
-    dbinfo = json.load(f)
-conn = MySQLdb.connect(*dbinfo)
-
-def join_galaxy(p,luminosityNorm,normalization,ind,galax):
-
-    try:
-        cursor = conn.cursor(MySQLdb.cursors.DictCursor)
-
-        v = cursor.execute('INSERT INTO lvc_galaxies (voeventid,score,gladeid) VALUES('+
-'(SELECT MAX(id) from voevent_lvc),' + str((p * luminosityNorm / normalization)[ind]) + ',(SELECT id from glade WHERE ra0 =' + str(galax[ind, 0]) + ' AND ' + 'dec0 ='+ str(galax[ind, 1])+ '))') #adds to table
-        print v
-        if cursor.rowcount == 0:
-            pass
-        conn.commit()
-        cursor.close()
-    except MySQLdb.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
 
 def find_galaxy_list(map_path, airmass_threshold = airmass_thresholdp, completeness = completenessp, credzone = 0.99):
     #loading the map:
@@ -244,6 +224,9 @@ Exception: {}'''.format(map_path, e)
         ind = ii[i]
         galaxylist[i, :] = [galax[ind, 0], galax[ind, 1], galax[ind, 2], galax[ind, 3],
                             (p * luminosityNorm / normalization)[ind], distanceFactor[ind]]
-        join_galaxy(p, luminosityNorm, normalization, ind, galax) #creates table "lvc_galaxies" with columns corresponding to voevent_id, glade_id, score
+        lvc_galaxy_dict = {'voeventid': '(SELECT MAX(id) from voevent_lvc)',
+        'score': (p * luminosityNorm / normalization)[ind],
+        'gladeid': '(SELECT id from glade WHERE ra0={:f} AND dec0={:f})'.format(galax[ind, 0], galax[ind, 1])}
+        insert_values('lvc_galaxies', lvc_galaxy_dict)
     
     return galaxylist #, stats
